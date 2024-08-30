@@ -179,7 +179,7 @@ function Builder({
         triggers = { alert: { source: alertSource, name: alertName } };
       }
       setDefinition(
-        wrapDefinition(generateWorkflow(alertUuid, "", "", [], [], triggers))
+        wrapDefinition(generateWorkflow(alertUuid, "", "", false, [], [], triggers))
       );
     } else {
       setDefinition(wrapDefinition(parseWorkflow(loadedAlertFile!, providers)));

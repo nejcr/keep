@@ -277,8 +277,7 @@ function WorkflowEditor(properties: Properties, updateProperty: any) {
     delete currentFilters[filter];
     updateProperty("alert", currentFilters);
   };
-
-  return (
+return (
     <>
       <Title className="mt-2.5">Workflow Settings</Title>
       <div className="w-1/2">
@@ -319,71 +318,93 @@ function WorkflowEditor(properties: Properties, updateProperty: any) {
           </Button>
         )}
       </div>
-      {propertyKeys.map((key, index) => {
-        return (
-          <div key={index}>
-            <Text className="capitalize mt-2.5">{key}</Text>
-            {key === "manual" ? (
-              <div key={key}>
-                <input
-                  type="checkbox"
-                  checked={properties[key] === "true"}
-                  onChange={(e) =>
-                    updateProperty(key, e.target.checked ? "true" : "false")
-                  }
-                />
-              </div>
-            ) : key === "alert" ? (
-              <>
-                <div className="w-1/2">
-                  <Button
-                    onClick={addFilter}
-                    size="xs"
-                    className="ml-1 mt-1"
-                    variant="light"
-                    color="gray"
-                    icon={FunnelIcon}
-                  >
-                    Add Filter
-                  </Button>
-                </div>
-                {properties.alert &&
-                  Object.keys(properties.alert as {}).map((filter) => {
-                    return (
-                      <>
-                        <Subtitle className="mt-2.5">{filter}</Subtitle>
-                        <div className="flex items-center mt-1" key={filter}>
-                          <TextInput
-                            key={filter}
-                            placeholder={`Set alert ${filter}`}
-                            onChange={(e: any) =>
-                              updateAlertFilter(filter, e.target.value)
-                            }
-                            value={(properties.alert as any)[filter] as string}
-                          />
-                          <Icon
-                            icon={BackspaceIcon}
-                            className="cursor-pointer"
-                            color="red"
-                            tooltip={`Remove ${filter} filter`}
-                            onClick={() => deleteFilter(filter)}
-                          />
-                        </div>
-                      </>
-                    );
-                  })}
-              </>
-            ) : (
-              <TextInput
-                placeholder={`Set the ${key}`}
-                onChange={(e: any) => updateProperty(key, e.target.value)}
-                value={properties[key] as string}
-              />
-            )}
-          </div>
-        );
-      })}
-    </>
+          {propertyKeys.map((key, index) => {
+              return (
+                  <div key={index}>
+                      <Text className="capitalize mt-2.5">{key}</Text>
+                      {(() => {
+                          switch (key) {
+                              case "manual":
+                                  return (
+                                      <div key={key}>
+                                          <input
+                                              type="checkbox"
+                                              checked={properties[key] === "true"}
+                                              onChange={(e) =>
+                                                  updateProperty(key, e.target.checked ? "true" : "false")
+                                              }
+                                          />
+                                      </div>
+                                  );
+
+                              case "alert":
+                                  return (
+                                      <>
+                                          <div className="w-1/2">
+                                              <Button
+                                                  onClick={addFilter}
+                                                  size="xs"
+                                                  className="ml-1 mt-1"
+                                                  variant="light"
+                                                  color="gray"
+                                                  icon={FunnelIcon}
+                                              >
+                                                  Add Filter
+                                              </Button>
+                                          </div>
+                                          {properties.alert &&
+                                              Object.keys(properties.alert as {}).map((filter) => (
+                                                  <div key={filter}>
+                                                      <Subtitle className="mt-2.5">{filter}</Subtitle>
+                                                      <div className="flex items-center mt-1">
+                                                          <TextInput
+                                                              placeholder={`Set alert ${filter}`}
+                                                              onChange={(e: any) =>
+                                                                  updateAlertFilter(filter, e.target.value)
+                                                              }
+                                                              value={(properties.alert as any)[filter] as string}
+                                                          />
+                                                          <Icon
+                                                              icon={BackspaceIcon}
+                                                              className="cursor-pointer"
+                                                              color="red"
+                                                              tooltip={`Remove ${filter} filter`}
+                                                              onClick={() => deleteFilter(filter)}
+                                                          />
+                                                      </div>
+                                                  </div>
+                                              ))}
+                                      </>
+                                  );
+
+                              case "disabled":
+                                  return (
+                                      <div key={key}>
+                                          <input
+                                              type="checkbox"
+                                              checked={properties[key] === "true"}
+                                              onChange={(e) =>
+                                                  updateProperty(key, e.target.checked ? "true" : "false")
+                                              }
+                                          />
+                                      </div>
+                                  );
+
+                              default:
+                                  return (
+                                      <TextInput
+                                          placeholder={`Set the ${key}`}
+                                          onChange={(e: any) => updateProperty(key, e.target.value)}
+                                          value={properties[key] as string}
+                                      />
+                                  );
+                          }
+                      })()}
+                  </div>
+              );
+          })}
+      </>
+
   );
 }
 

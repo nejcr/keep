@@ -27,7 +27,7 @@ from keep.api.core.db import (
     get_workflow,
 )
 from keep.api.core.db import get_workflow_executions as get_workflow_executions_db
-from keep.api.core.db import get_workflow_id_by_name
+from keep.api.core.db import get_workflow_by_name
 from keep.api.core.dependencies import AuthenticatedEntity, AuthVerifier
 from keep.api.models.alert import AlertDto
 from keep.api.models.workflow import (
@@ -167,6 +167,7 @@ def get_workflows(
             creation_time=workflow.creation_time,
             last_execution_time=workflow_last_run_time,
             last_execution_status=workflow_last_run_status,
+            disabled = workflow.is_disabled,
             interval=workflow.interval,
             providers=providers_dto,
             triggers=triggers,
@@ -211,9 +212,19 @@ def run_workflow(
     created_by = authenticated_entity.email
     logger.info("Running workflow", extra={"workflow_id": workflow_id})
     # if the workflow id is the name of the workflow (e.g. the CLI has only the name)
+    workflow = None
     if not validators.uuid(workflow_id):
         logger.info("Workflow ID is not a UUID, trying to get the ID by name")
-        workflow_id = get_workflow_id_by_name(tenant_id, workflow_id)
+        workflow = get_workflow_by_name(tenant_id, workflow_id)
+    else:
+        workflow = get_workflow(tenant_id,workflow_id)
+
+    if workflow.is_disabled:
+        raise HTTPException(
+            status_code=400,
+            detail="Workflow is disabled",
+        )
+    workflow_id = workflow.id
     workflowmanager = WorkflowManager.get_instance()
 
     # Finally, run it
@@ -476,6 +487,7 @@ async def update_workflow_by_id(
     else:
         workflow["name"] = workflow_from_db.name
     workflow_from_db.description = workflow.get("description")
+    workflow_from_db.is_disabled = Parser.parse_disabled(workflow)
     workflow_from_db.interval = workflow_interval
     workflow_from_db.workflow_raw = yaml.dump(workflow)
     workflow_from_db.last_updated = datetime.datetime.now()
