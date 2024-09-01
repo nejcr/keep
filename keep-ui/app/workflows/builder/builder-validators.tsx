@@ -17,10 +17,11 @@ export function globalValidatorV2(
   }
 
   if (
-    !!definition?.properties && 
-    !('manual' in definition.properties) && 
-    !('interval' in definition.properties) && 
-    !('alert' in definition.properties)
+    !!definition?.properties &&
+    !definition.properties['manual'] &&
+    !definition.properties['interval'] &&
+    !definition.properties['alert'] &&
+    !definition.properties['disabled']
   ) {
      setGlobalValidationError('trigger_start', "Workflow Should alteast have one trigger.");
     return false;
